@@ -1,0 +1,168 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Criando ScreenGui para conter a calculadora
+local screenGui = Instance.new("ScreenGui", playerGui)
+screenGui.Name = "CalculatorGui"
+
+-- Estilos para elementos
+local textBoxStyle = {
+    Size = UDim2.new(0, 300, 0, 50),
+    Position = UDim2.new(0.5, -150, 0.3, 0),
+    PlaceholderText = "Digite a operação (e.g., 2+2)",
+    Text = "",
+    ClearTextOnFocus = false,
+    Font = Enum.Font.SourceSans,
+    TextSize = 18
+}
+
+local buttonStyle = {
+    Size = UDim2.new(0, 50, 0, 50),
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    BackgroundColor3 = Color3.fromRGB(0, 120, 215),
+    Font = Enum.Font.SourceSans,
+    TextSize = 18
+}
+
+local resultLabelStyle = {
+    Size = UDim2.new(0, 300, 0, 50),
+    Position = UDim2.new(0.5, -150, 0.5, 0),
+    Text = "Resultado:",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+    TextScaled = true,
+    Font = Enum.Font.SourceSans,
+    TextSize = 24
+}
+
+-- Criando TextBox para entrada
+local textBox = Instance.new("TextBox", screenGui)
+for property, value in pairs(textBoxStyle) do
+    textBox[property] = value
+end
+
+-- Criando botões para números de 0 a 9
+for i = 1, 9 do
+    local button = Instance.new("TextButton", screenGui)
+    button.Position = UDim2.new(0.5, (i - 5) * 60, 0.6, 0)
+    button.Size = UDim2.new(0, 50, 0, 50)
+    button.Text = tostring(i)
+    for property, value in pairs(buttonStyle) do
+        button[property] = value
+    end
+
+    button.MouseButton1Click:Connect(function()
+        textBox.Text = textBox.Text .. tostring(i)
+    end)
+end
+
+-- Criando botão para o número 0
+local buttonZero = Instance.new("TextButton", screenGui)
+buttonZero.Position = UDim2.new(0.5, 0, 0.6, 0)
+buttonZero.Size = UDim2.new(0, 50, 0, 50)
+buttonZero.Text = "0"
+for property, value in pairs(buttonStyle) do
+    buttonZero[property] = value
+end
+
+buttonZero.MouseButton1Click:Connect(function()
+    textBox.Text = textBox.Text .. "0"
+end)
+
+-- Criando botões para operações
+local buttonAdd = Instance.new("TextButton", screenGui)
+buttonAdd.Position = UDim2.new(0.5, 120, 0.4, 0)
+buttonAdd.Size = UDim2.new(0, 50, 0, 50)
+buttonAdd.Text = "+"
+for property, value in pairs(buttonStyle) do
+    buttonAdd[property] = value
+end
+
+local buttonSubtract = Instance.new("TextButton", screenGui)
+buttonSubtract.Position = UDim2.new(0.5, 180, 0.4, 0)
+buttonSubtract.Size = UDim2.new(0, 50, 0, 50)
+buttonSubtract.Text = "-"
+for property, value in pairs(buttonStyle) do
+    buttonSubtract[property] = value
+end
+
+local buttonMultiply = Instance.new("TextButton", screenGui)
+buttonMultiply.Position = UDim2.new(0.5, 240, 0.4, 0)
+buttonMultiply.Size = UDim2.new(0, 50, 0, 50)
+buttonMultiply.Text = "×"
+for property, value in pairs(buttonStyle) do
+    buttonMultiply[property] = value
+end
+
+local buttonDivide = Instance.new("TextButton", screenGui)
+buttonDivide.Position = UDim2.new(0.5, 300, 0.4, 0)
+buttonDivide.Size = UDim2.new(0, 50, 0, 50)
+buttonDivide.Text = "÷"
+for property, value in pairs(buttonStyle) do
+    buttonDivide[property] = value
+end
+
+local buttonCalculate = Instance.new("TextButton", screenGui)
+buttonCalculate.Position = UDim2.new(0.5, -150, 0.4, 0)
+buttonCalculate.Size = UDim2.new(0, 100, 0, 50)
+buttonCalculate.Text = "Calcular"
+for property, value in pairs(buttonStyle) do
+    buttonCalculate[property] = value
+end
+
+-- Criando label para mostrar o resultado
+local resultLabel = Instance.new("TextLabel", screenGui)
+for property, value in pairs(resultLabelStyle) do
+    resultLabel[property] = value
+end
+
+-- Função para calcular a expressão
+local function calculateExpression(expression)
+    -- Substituir "×" por "*"
+    expression = string.gsub(expression, "×", "*")
+    -- Substituir "÷" por "/"
+    expression = string.gsub(expression, "÷", "/")
+
+    local success, result = pcall(function()
+        return loadstring("return " .. expression)()
+    end)
+    
+    if success then
+        return result
+    else
+        return nil
+    end
+end
+
+-- Conectar evento do botão de adição à função de cálculo
+buttonAdd.MouseButton1Click:Connect(function()
+    textBox.Text = textBox.Text .. "+"
+end)
+
+-- Conectar evento do botão de subtração à função de cálculo
+buttonSubtract.MouseButton1Click:Connect(function()
+    textBox.Text = textBox.Text .. "-"
+end)
+
+-- Conectar evento do botão de multiplicação à função de cálculo
+buttonMultiply.MouseButton1Click:Connect(function()
+    textBox.Text = textBox.Text .. "×"
+end)
+
+-- Conectar evento do botão de divisão à função de cálculo
+buttonDivide.MouseButton1Click:Connect(function()
+    textBox.Text = textBox.Text .. "÷"
+end)
+
+-- Conectar evento do botão de calcular à função de cálculo
+buttonCalculate.MouseButton1Click:Connect(function()
+    local inputText = textBox.Text
+    local result = calculateExpression(inputText)
+
+    if result then
+        resultLabel.Text = "Resultado: " .. tostring(result)
+    else
+        resultLabel.Text = "Erro na expressão"
+    end
+end)
